@@ -1,1 +1,2 @@
 pdfminer.six>=20200726
+rapidfuzz>=0.11.3
