@@ -30,15 +30,30 @@ class PageData(object):
     @classmethod
     def load_from_page(cls, page):
         """Directly load data from a `<LTPage>` object."""
-        raise NotImplementedError
+        text_groups = []
+        non_text_groups = []
+        idx_text, idx_non_text = 0, 0
+
+        for obj in page._objs:
+            if isinstance(obj, pmla.LTText):
+                text_groups.append(PDFObject.from_object(idx_text, obj))
+                idx_text += 1
+            else:
+                non_text_groups.append(PDFObject.from_object(idx_non_text, obj))
+                idx_non_text += 1
+        return cls(page.pageid, text_groups, non_text_groups)
 
     @classmethod
     def from_dict(cls, dict):
         pageid = dict.get('pageid')
         text_groups = [PDFObject.from_dict(v) for v in dict.get('text_groups')]
         non_text_groups = [PDFObject.from_dict(v) for v in dict.get('non_text_groups')]
+        unresolved_groups = dict.get('unresolved_groups', {})
         extra_info = dict.get('extra_info', {})
-        return cls(pageid, text_groups, non_text_groups, extra_info=extra_info)
+        return cls(
+            pageid, text_groups, non_text_groups,
+            unresolved_groups=unresolved_groups, extra_info=extra_info
+        )
 
     def to_dict(self):
         return {
