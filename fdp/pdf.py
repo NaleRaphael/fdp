@@ -1,3 +1,4 @@
+from types import GeneratorType
 import pdfminer.layout as pmla
 import pdfminer.high_level as pmhl
 import rapidfuzz as rf
@@ -163,6 +164,10 @@ class PDF(object):
         page_data_list : list
             List of `PageData` objects.
         """
+        not_preloaded = isinstance(self.pages, GeneratorType)
+        if not_preloaded:
+            page_cache = []
+
         page_data_list = []
         offset = 0
 
@@ -185,6 +190,12 @@ class PDF(object):
                 unresolved_groups=unresolved_groups,
             )
             page_data_list.append(page_data)
+
+            if not_preloaded:
+                page_cache.append(page)
+
+        if not_preloaded:
+            self.pages = page_cache
 
         return page_data_list
 
