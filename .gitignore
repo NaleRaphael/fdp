@@ -1,4 +1,5 @@
 data/
+examples/tools/
 *.json
 
 # Byte-compiled / optimized / DLL files
