@@ -93,7 +93,10 @@ class PDFObject(object):
         """
         type = obj.__class__.__name__
         if content is None:
-            content = obj.get_text() if isinstance(obj, pmla.LTText) else None
+            if isinstance(obj, pmla.LTText):
+                # Handle hyphens followed by newline character
+                lines = obj.get_text().replace('-\n', '').splitlines()
+                content = ''.join(lines)
         return cls(index, obj.bbox, type, content)
 
     @classmethod
@@ -149,7 +152,7 @@ class PDF(object):
             pages = list(pages)
         return cls(pages)
 
-    def aggregate_raw_text(self, raw_text, use_raw_text=True):
+    def aggregate_raw_text(self, raw_text, patience=10, use_raw_text=True):
         """Aggregate lines of text in `raw_text`, which is usaully text content
         of a PDF file parsed by any kind of text parser.
 
@@ -173,7 +176,7 @@ class PDF(object):
 
         for page in self.pages:
             index2located, index2object, offset, extra_info = locate_text(
-                page, raw_text, offset, use_raw_text=use_raw_text
+                page, raw_text, offset, patience=patience, use_raw_text=use_raw_text
             )
             output = group_text(index2located, index2object)
             text_object_groups, unresolved_text_objects, non_text_objects = output
