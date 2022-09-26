@@ -3,8 +3,11 @@ from fdp.pdf import PDF, PageData
 from fdp.drawer import draw_pdf_objects
 
 THIS_DIR = Path(__file__).parent
-DIR_TOOLS = THIS_DIR.joinpath('../tools')
+DIR_TOOLS = THIS_DIR.joinpath('./tools')
 DIR_DATA = THIS_DIR.joinpath('./data')
+
+DIR_TOOLS.mkdir(exist_ok=True)
+DIR_DATA.mkdir(exist_ok=True)
 
 URL_PDF2TXT = 'https://raw.githubusercontent.com/pdfminer/pdfminer.six/master/tools/pdf2txt.py'
 URL_PAPER = 'https://arxiv.org/pdf/1810.04805.pdf'
@@ -20,7 +23,7 @@ def download_file(url, save_path):
 
 
 def check_tool_script():
-    fn_script = DIR_TOOLS.joinpath('pdf2txt.py')
+    fn_script = DIR_TOOLS.joinpath('pdf2txt.py').absolute()
     if not fn_script.exists():
         print(
             'Script "pdfminer.six/pdf2txt.py" does not exist, it will be ' +
@@ -41,11 +44,11 @@ def check_data():
         download_file(URL_PAPER, FN_PDF.absolute())
 
     if not FN_TXT.exists():
-        from subprocess import check_call
+        from subprocess import check_call, Popen
         import shlex
 
         print('Extracting text from PDF file using "pdf2txt.py"...')
-        cmd = f'python ../tools/pdf2txt.py {FN_PDF.absolute()} -o {FN_TXT.absolute()}'
+        cmd = f'python ./tools/pdf2txt.py {FN_PDF.absolute()} -o {FN_TXT.absolute()}'
         check_call(shlex.split(cmd, posix=False), cwd=THIS_DIR)
 
 
